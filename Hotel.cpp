@@ -1,3 +1,8 @@
+/*  Hotel.cpp file
+    Author: Hilton Wong 100385078
+    Date: 11JUN23
+*/
+
 #include "Customer.h"
 #include "Room.h"
 #include "LinkedQueue.h"
@@ -9,6 +14,11 @@
 #include <iomanip>
 #include <vector>
 
+/**
+ * Function to read text file of customer bookings
+ * Input: Name of the file as string
+ * Output: Queue with each booking being a separate element in the queue
+*/
 LinkedQueue<std::string> readFile(std::string name){
     std::ifstream fin;
     std::string s;
@@ -24,6 +34,11 @@ LinkedQueue<std::string> readFile(std::string name){
     return bookings;
 }
 
+/**
+ * Function to split string into parts for easier usability
+ * Input: String to split, Delimiter string
+ * Output: Substring up until first occurence of delimiter
+*/
 std::string splitString(std::string& s, std::string d){
     std::string result = s.substr(0, s.find(d));
     int len = result.length() + d.length();
@@ -31,6 +46,11 @@ std::string splitString(std::string& s, std::string d){
     return result;
 }
 
+/**
+ * Function to convert date from string to tm struct
+ * Input: Date string in the form of DD/MM/YY
+ * Output: tm object for the matching date
+*/
 tm calcTime(std::string s){
     std::string date = splitString(s, ", ");
     tm time{};
@@ -40,6 +60,12 @@ tm calcTime(std::string s){
     return time;
 }
 
+/**
+ * Function to check if a booking can be assigned to a room and chooses what kind of room (1 bed/2 bed/3 bed) would best suit customer
+ * Input: Booking string, stack of available 1 bed rooms, stack of available 2 bed rooms, stack of available 3 bed rooms, 
+ * vector of occupied rooms
+ * Output: True if customer has been assigned to a room, false if not
+*/
 bool assignRoom(std::string s, LinkedStack<Room>& available1, LinkedStack<Room>& available2, LinkedStack<Room>& available3, std::vector<Room>& occupied){
     std::string date = splitString(s, ", ");
     std::string name = splitString(s, ", ");
@@ -100,6 +126,12 @@ bool assignRoom(std::string s, LinkedStack<Room>& available1, LinkedStack<Room>&
     }
 }
 
+/**
+ * Function to check out customers at the end of day and push the now empty rooms back into the available stacks
+ * Input: Current date, stack of available 1 bed rooms, stack of available 2 bed rooms, stack of available 3 bed rooms, 
+ * vector of occupied rooms
+ * Output: Number of rooms freed up after all checkouts for that day
+*/
 int freeRooms(tm time, LinkedStack<Room>& available1, LinkedStack<Room>& available2, LinkedStack<Room>& available3, std::vector<Room>& occupied){
     int noOfFreeRooms = 0;
     for(int i = 0; i < occupied.size(); i++){
@@ -126,6 +158,11 @@ int freeRooms(tm time, LinkedStack<Room>& available1, LinkedStack<Room>& availab
     return noOfFreeRooms;
 }
 
+/**
+ * Function to count the number of unique customers staying at the hotel
+ * Input: Vector of occupied rooms
+ * Output: Number of unique customers
+*/
 int countCust(std::vector<Room>& occupied){
     int count = 0;
     if(occupied.size() >= 1){
@@ -139,7 +176,14 @@ int countCust(std::vector<Room>& occupied){
     return count;
 }
 
-
+/**
+ * Main driver of function, progresses through time day by day, assigning rooms then checking out customers at the end of day.
+ * Prints a log.txt containing information on how many customers served, refused, no. of checkouts and no. of available rooms
+ * post-checkout.
+ * Input: Current date, queue of all bookings, stack of available 1 bed rooms, stack of available 2 bed rooms, stack of available
+ * 3 bed rooms, vector of occupied rooms.
+ * Output: log.txt file containing daily hotel information.
+*/
 void incrementTime(tm time, LinkedQueue<std::string>& bookings, LinkedStack<Room>& available1, LinkedStack<Room>& available2, LinkedStack<Room>& available3, std::vector<Room>& occupied){
     std::ofstream fout;
     fout.open("log.txt");
@@ -196,7 +240,7 @@ int main(){
         r.addBeds(3);
     }
 
-    tm time{};
+    tm time{};  // start date of first booking
     time.tm_mday = 1;
     time.tm_mon = 0;
     time.tm_year = 2018-1900;
